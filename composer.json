@@ -1,0 +1,33 @@
+{
+    "name": "devgroup/yii2-media",
+    "description": "Experimental media library extension for yii2",
+    "type": "yii2-extension",
+    "keywords": ["yii2","extension"],
+    "license": "GPL-3.0",
+    "authors": [
+        {
+            "name": "Alexander Kozhevnikov",
+            "email": "b37hr3z3n@gmail.com"
+        }
+    ],
+    "require": {
+        "yiisoft/yii2": "~2.0.6",
+        "yiisoft/yii2-bootstrap": "~2.0.6",
+        "creocoder/yii2-flysystem": "^0.8.1",
+        "bower-asset/Jcrop": "^2.0",
+        "yiisoft/yii2-imagine": "^2.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "DevGroup\\Media\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "DevGroup\\Media\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "bootstrap": "DevGroup\\Media\\ExtensionBootstrap"
+    }
+}
