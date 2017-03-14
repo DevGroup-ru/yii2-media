@@ -18,19 +18,11 @@ class ExtensionBootstrap implements BootstrapInterface
      */
     public function bootstrap($app)
     {
-        if ($app instanceof \yii\web\Application === false) {
-            return;
-        }
+        if ($app instanceof \yii\console\Application) {
+            if (isset($app->controllerMap['migrate'])) {
+                $app->controllerMap['migrate']['migrationLookup'][] = '@vendor/devgroup/yii2-media/src/migrations';
+            }
 
-        if (array_key_exists('adminModals', $app->components) === false) {
-            $app->components['adminModals'] = [
-                'class' => 'DevGroup\AdminModals\components\AdminModals',
-            ];
         }
-        $app->on(Application::EVENT_BEFORE_ACTION, function() {
-            /** @var AdminModals $adminModals */
-            $adminModals = Yii::$app->get('adminModals');
-            $adminModals->runAdminModals();
-        });
     }
 }
