@@ -15,6 +15,7 @@
         "yiisoft/yii2-bootstrap": "~2.0.6",
         "creocoder/yii2-flysystem": "^0.8.1",
         "bower-asset/Jcrop": "^2.0",
+        "bower-asset/iscroll": "~5.2.0",
         "yiisoft/yii2-imagine": "^2.1",
         "creocoder/yii2-nested-sets": "^0.9.0",
         "yii2tech/ar-role": "^1.0"

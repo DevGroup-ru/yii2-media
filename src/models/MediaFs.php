@@ -112,4 +112,12 @@ class MediaFs extends \yii\db\ActiveRecord
     {
         return new MediaFsQuery(get_called_class());
     }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+        if ((int) $this->depth === 0) {
+            Yii::$app->cache->delete('Media:FileSystem:Trees');
+        }
+    }
 }

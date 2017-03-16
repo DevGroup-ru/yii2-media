@@ -31,9 +31,9 @@ class MediaFile extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['file_id', 'public_url'], 'required'],
             [['file_id', 'size', 'file_type_id'], 'integer'],
             [['public_url'], 'string'],
+            ['public_url', 'default', 'value' => ''],
             [['file_id'], 'exist', 'skipOnError' => true, 'targetClass' => MediaFs::className(), 'targetAttribute' => ['file_id' => 'id']],
         ];
     }
