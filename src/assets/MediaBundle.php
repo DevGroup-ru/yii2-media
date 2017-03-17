@@ -1,20 +1,16 @@
 <?php
 
-namespace DevGroup\AdminModals\assets;
+namespace DevGroup\Media\assets;
 
 use yii\bootstrap\BootstrapPluginAsset;
 use yii\web\AssetBundle;
 
-class AdminModalsBundle extends AssetBundle
+class MediaBundle extends AssetBundle
 {
     public $depends = [
-        BootstrapPluginAsset::class,
-        BootstrapModalAsset::class,
-    ];
-
-    public $css = [
-        // as we don't have much styles for now - there's no use in webpacking or minifying of them
-        'styles.css'
+        JCropAsset::class,
+        IScrollAsset::class,
+        SortableAsset::class,
     ];
 
     public function init()
@@ -23,6 +19,10 @@ class AdminModalsBundle extends AssetBundle
 
         $this->js = [
             YII_ENV_DEV ? 'app.bundle.js' : 'app.bundle.min.js'
+        ];
+
+        $this->css = [
+            YII_ENV_DEV ? 'app.bundle.css' : 'app.bundle.min.css'
         ];
 
         parent::init();

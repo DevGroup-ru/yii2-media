@@ -29,7 +29,7 @@ if (ENV === 'production') {
 module.exports = {
   devtool: 'source-map',
   entry: {
-    app: './app/index.js',
+    app: './src/index.js',
   },
   devServer: {
     historyApiFallback: true,

@@ -74,4 +74,9 @@ class File extends MediaFs
     {
         return $this->hasOne(MediaFile::class, ['file_id' => 'id']);
     }
+
+    public function getImageData()
+    {
+        return $this->hasOne(MediaImage::class, ['file_id' => 'file_id']);
+    }
 }

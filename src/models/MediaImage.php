@@ -57,4 +57,31 @@ class MediaImage extends \yii\db\ActiveRecord
     {
         return new MediaImageQuery(get_called_class());
     }
+
+    public function extraFields()
+    {
+        $fields = parent::extraFields();
+        $fields['thumb'] = function() {
+            if ($this->thumb == null) {
+                return null;
+            }
+            return [
+                'id' => $this->thumb->id,
+                'fs_path' => $this->thumb->fs_path,
+                'fileData' => $this->thumb->fileData,
+            ];
+        };
+        return $fields;
+    }
+
+    public function toArray(array $fields = [], array $expand = [], $recursive = true)
+    {
+        $expand[] = 'thumb';
+        return parent::toArray($fields, $expand, $recursive);
+    }
+
+    public function getThumb()
+    {
+        return $this->hasOne(File::class, ['id' => 'thumb_file_id'])->with('fileData');
+    }
 }

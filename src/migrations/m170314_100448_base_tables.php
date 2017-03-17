@@ -78,7 +78,7 @@ class m170314_100448_base_tables extends Migration
             'sort_order' => $this->integer()->notNull()->defaultValue(0),
         ]);
         $this->addForeignKey('mediaRel', '{{%media_file_relation}}', 'file_id', '{{%media_file}}', 'file_id', 'CASCADE', 'CASCADE');
-//        $this->createIndex('frFRel', '{{%file_relation}}', ['file_id', 'model_class_name_hash', 'model_id'], true);
+        $this->createIndex('frFRel', '{{%file_relation}}', ['model_class_name_hash', 'model_id', 'file_id'], true);
 
         $this->createTable('{{%media_providers}}', [
             'id' => $this->primaryKey(),
