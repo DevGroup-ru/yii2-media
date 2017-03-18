@@ -9,7 +9,7 @@ use Yii;
  *
  * @property int $id
  * @property int $file_id
- * @property string $model_class_name_hash
+ * @property string $model
  * @property int $model_id
  * @property string $relation_name
  * @property int $sort_order
@@ -32,9 +32,9 @@ class MediaFileRelation extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['file_id', 'model_class_name_hash', 'model_id'], 'required'],
+            [['file_id', 'model', 'model_id'], 'required'],
             [['file_id', 'model_id', 'sort_order'], 'integer'],
-            [['model_class_name_hash'], 'string', 'max' => 32],
+            [['model'], 'string', 'max' => 60],
             [['relation_name'], 'string', 'max' => 255],
             [['file_id'], 'exist', 'skipOnError' => true, 'targetClass' => MediaFile::className(), 'targetAttribute' => ['file_id' => 'file_id']],
         ];
@@ -48,7 +48,7 @@ class MediaFileRelation extends \yii\db\ActiveRecord
         return [
             'id' => Yii::t('yii2-media', 'ID'),
             'file_id' => Yii::t('yii2-media', 'File ID'),
-            'model_class_name_hash' => Yii::t('yii2-media', 'Model Class Name Hash'),
+            'model' => Yii::t('yii2-media', 'Model'),
             'model_id' => Yii::t('yii2-media', 'Model ID'),
             'relation_name' => Yii::t('yii2-media', 'Relation Name'),
             'sort_order' => Yii::t('yii2-media', 'Sort Order'),

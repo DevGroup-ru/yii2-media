@@ -33,7 +33,7 @@ class MediaProviders extends \yii\db\ActiveRecord
         return [
             [['class_name', 'url_provider_class_name'], 'required'],
             [['options', 'url_provider_options',], 'safe'],
-            [['options', 'url_provider_options'], 'default', 'value' => '{}'],
+            [['options', 'url_provider_options'], 'default', 'value' => []],
             [['tree_id'], 'integer'],
             ['tree_id', 'default', 'value' => 0],
             [['class_name', 'url_provider_class_name'], 'string', 'max' => 255],

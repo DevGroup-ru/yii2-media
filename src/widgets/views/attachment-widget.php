@@ -4,6 +4,7 @@
 /** @var string $attribute */
 /** @var array $options */
 
+use DevGroup\Media\helpers\AttachmentHelper;
 use yii\helpers\Html;
 use yii\helpers\Json;
 use yii\helpers\Url;
@@ -18,6 +19,7 @@ $csrfParam = Yii::$app->request->csrfParam;
 $csrfToken = Yii::$app->request->csrfToken;
 
 $this->registerJs($js);
+
 ?>
 <div class="media-attachment">
     <?=
@@ -28,7 +30,7 @@ $this->registerJs($js);
             'id' => $inputId,
 
             // model binding
-            'data-model-classname-hash' => md5($model::className()),
+            'data-model' => AttachmentHelper::modelClassName($model),
             'data-model-id' => $model->id,
             'data-relation-name' => $attribute,
 

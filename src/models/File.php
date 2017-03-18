@@ -2,6 +2,7 @@
 
 namespace DevGroup\Media\models;
 
+use DevGroup\Media\MediaModule;
 use Yii;
 use yii\behaviors\AttributeTypecastBehavior;
 use yii\helpers\ArrayHelper;
@@ -78,5 +79,26 @@ class File extends MediaFs
     public function getImageData()
     {
         return $this->hasOne(MediaImage::class, ['file_id' => 'file_id']);
+    }
+
+    /**
+     * @param \DevGroup\Media\models\Folder $folder
+     * @param string                        $name
+     *
+     * @return File
+     */
+    public static function ensureFile(Folder $folder, $name)
+    {
+        $model = File::find()
+            ->inFolder($folder, 1)
+            ->andWhere([
+                'name' => $name
+            ])
+            ->one();
+        if ($model === null) {
+            $model = new File(['name' => $name, 'fs_path' => $name]);
+            $model->appendTo($folder);
+        }
+        return $model;
     }
 }

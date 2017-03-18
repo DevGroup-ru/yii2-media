@@ -7,15 +7,22 @@ use Yii;
 
 class LocalUrlProvider extends AbstractUrlProvider
 {
-    private $siteUrl;
+    public $siteUrl;
 
     public function initFilesystem()
     {
         /* @var LocalFilesystem $fs */
         $fs = $this->filesystem;
         $fsPath = Yii::getAlias($fs->path);
-        $this->siteUrl = Yii::$app->request->hostInfo . '/' . Yii::getAlias('@web');
-        $this->siteUrl = str_replace(Yii::getAlias('@webroot'), $this->siteUrl, $fsPath);
+        if (empty($this->siteUrl)) {
+            $this->siteUrl = Yii::$app->request->hostInfo . Yii::getAlias('@web');
+        }
+
+        $this->siteUrl = str_replace(
+            Yii::getAlias('@webroot'),
+            rtrim($this->siteUrl, '/'),
+            $fsPath
+        );
         $this->siteUrl = rtrim($this->siteUrl, '/');
     }
 

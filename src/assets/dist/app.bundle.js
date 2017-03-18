@@ -98,7 +98,7 @@ var Attachment = function () {
     };
 
     this.uploadTarget = this.$input.data('uploadTarget');
-    this.modelClassNameHash = this.$input.data('modelClassnameHash');
+    this.model = this.$input.data('model');
     this.modelId = this.$input.data('modelId');
     this.relationName = this.$input.data('relationName');
 
@@ -162,7 +162,7 @@ var Attachment = function () {
         formData.append('UploadModel[files][]', file);
       });
       formData.append(this.csrfParam, this.csrfToken);
-      formData.append('UploadModel[model_class_name_hash]', this.modelClassNameHash);
+      formData.append('UploadModel[model]', this.model);
       formData.append('UploadModel[model_id]', this.modelId);
       formData.append('UploadModel[relation_name]', this.relationName);
 

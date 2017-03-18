@@ -27,9 +27,6 @@ class MediaFs extends \yii\db\ActiveRecord
 {
     use \DevGroup\TagDependencyHelper\TagDependencyTrait;
 
-    const TYPE_FOLDER = 'folder';
-    const TYPE_FILE = 'file';
-
     /**
      * @inheritdoc
      */

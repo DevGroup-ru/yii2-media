@@ -2,7 +2,9 @@
 
 namespace DevGroup\Media\helpers;
 
+use DevGroup\Media\MediaModule;
 use DevGroup\Media\models\File;
+use DevGroup\Media\models\Folder;
 use DevGroup\Media\models\MediaFileRelation;
 use Yii;
 use yii\base\Model;
@@ -18,11 +20,12 @@ class AttachmentHelper
     {
         $ids = ArrayHelper::getColumn($models, 'id');
         $firstModel = reset($models);
-
+        $reflector = new \ReflectionClass($firstModel);
+        $modelName = $reflector->getShortName();
         $result = MediaFileRelation::find()
             ->select(['file_id', 'model_id', 'sort_order'])
             ->where([
-                'model_class_name_hash' => md5($firstModel::className()),
+                'model' => $modelName,
                 'relation_name' => $relationName,
                 'model_id' => $ids,
             ])
@@ -34,7 +37,7 @@ class AttachmentHelper
             if (isset($result[$model->id])) {
                 $model->$relationName = implode(',', $result[$model->id]);
             } else {
-                $model->$relationName = [];
+                $model->$relationName = '';
             }
         }
     }
@@ -57,5 +60,41 @@ class AttachmentHelper
             }
         }
         return $result;
+    }
+
+    public static function fillPublicUrl(File $model)
+    {
+        $parents = Folder::find()
+            ->select(['fs_path'])
+            ->where([
+                'and',
+                [
+                    '<', 'lft', $model->lft,
+                ],
+                [
+                    '>', 'rgt', $model->rgt,
+                ],
+                [
+                    'tree' => $model->tree,
+                ],
+                [
+                    '!=', 'depth', 0
+                ]
+            ])
+            ->orderBy(['lft' => SORT_ASC])
+            ->asArray()
+            ->column();
+
+        $fullUrl = implode('/', $parents) . '/' . $model->fs_path;
+        $urlProvider = MediaModule::module()->urlProviderByTree($model->tree);
+        $model->public_url = $urlProvider->getFileUrl($fullUrl);
+        $model->save();
+    }
+
+
+    public static function modelClassName($model)
+    {
+        $reflection = new \ReflectionClass($model);
+        return $reflection->getShortName();
     }
 }

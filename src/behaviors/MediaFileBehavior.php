@@ -6,6 +6,7 @@ use DevGroup\Media\helpers\AttachmentHelper;
 use DevGroup\Media\models\MediaFile;
 use DevGroup\Media\models\MediaFileRelation;
 
+use ReflectionClass;
 use Yii;
 use yii\base\Behavior;
 use yii\base\Model;
@@ -40,10 +41,11 @@ class MediaFileBehavior extends Behavior
 
         /** @var Model $owner */
         $owner = $this->owner;
-        $classNameHash = md5($owner::className());
+        $reflector = new ReflectionClass($owner);
+        $classNameHash = $reflector->getShortName();
 
         MediaFileRelation::deleteAll([
-            'model_class_name_hash' => $classNameHash,
+            'model' => $classNameHash,
             'model_id' => $owner->id,
             'relation_name' => $this->relationName
         ]);
@@ -64,7 +66,7 @@ class MediaFileBehavior extends Behavior
                 ->batchInsert(
                     MediaFileRelation::tableName(),
                     [
-                        'model_class_name_hash',
+                        'model',
                         'model_id',
                         'relation_name',
                         'file_id',

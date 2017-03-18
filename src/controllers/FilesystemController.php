@@ -23,24 +23,16 @@ class FilesystemController extends Controller
 
     public function actionTrees()
     {
-        $cacheKey = 'Media:FileSystem:Trees';
-        $trees = Yii::$app->cache->get($cacheKey);
-        if ($trees === false) {
-            $trees = Folder::find()
-                ->where([
-                    '[depth]' => 0,
-                ])
-                ->roots()
-                ->select([
-                    'id',
-                    'name',
-                    'fs_path',
-                ])
-                ->asArray()
-                ->all();
-            Yii::$app->cache->set($cacheKey, $trees, 86400);
+        $trees = Folder::trees();
+        $result = [];
+        foreach ($trees as $tree) {
+            $result[] = $tree->toArray([
+                'id',
+                'name',
+                'fs_path',
+            ]);
         }
-        return $trees;
+        return $result;
     }
 
     public function actionListFolders($folder_id)
@@ -88,7 +80,9 @@ class FilesystemController extends Controller
 
     public function actionUpload()
     {
-        $model = new UploadModel();
+        $model = new UploadModel([
+            'model_id' => 'UNSORTED',
+        ]);
 
         $result = false;
 

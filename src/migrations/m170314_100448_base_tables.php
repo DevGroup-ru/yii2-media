@@ -1,6 +1,7 @@
 <?php
 
 use DevGroup\Media\models\Folder;
+use DevGroup\Media\models\MediaFileType;
 use DevGroup\Media\models\MediaProviders;
 use yii\db\Migration;
 use yii\helpers\Console;
@@ -72,13 +73,13 @@ class m170314_100448_base_tables extends Migration
         $this->createTable('{{%media_file_relation}}', [
             'id' => $this->primaryKey()->unsigned(),
             'file_id' => $this->integer()->notNull()->unsigned(),
-            'model_class_name_hash' => $this->char(32)->notNull(),
+            'model' => $this->char(60)->notNull(),
             'model_id' => $this->integer()->notNull(),
             'relation_name' => $this->string()->notNull()->defaultValue(''),
             'sort_order' => $this->integer()->notNull()->defaultValue(0),
         ]);
         $this->addForeignKey('mediaRel', '{{%media_file_relation}}', 'file_id', '{{%media_file}}', 'file_id', 'CASCADE', 'CASCADE');
-        $this->createIndex('frFRel', '{{%file_relation}}', ['model_class_name_hash', 'model_id', 'file_id'], true);
+        $this->createIndex('frFRel', '{{%media_file_relation}}', ['model', 'model_id', 'file_id'], true);
 
         $this->createTable('{{%media_providers}}', [
             'id' => $this->primaryKey(),
@@ -96,16 +97,37 @@ class m170314_100448_base_tables extends Migration
             ],
             'url_provider_class_name' => 'DevGroup\Media\UrlProvider\LocalUrlProvider',
             'url_provider_options' => [],
+            'tree_id' => 1,
         ]);
         $localProvider->loadDefaultValues();
         $localProvider->save();
 
         $tree = new Folder([
             'name' => 'Local',
-
         ]);
         $tree->loadDefaultValues();
         $tree->makeRoot();
+
+        $fileType = new MediaFileType([
+            'class_name' => 'DevGroup\Media\FileType\Attachment',
+            'options' => [],
+            'name' => 'Attachment',
+        ]);
+        $fileType->save();
+
+        $fileType = new MediaFileType([
+            'class_name' => 'DevGroup\Media\FileType\Image',
+            'options' => [],
+            'name' => 'Image',
+        ]);
+        $fileType->save();
+
+        $fileType = new MediaFileType([
+            'class_name' => 'DevGroup\Media\FileType\Thumbnail',
+            'options' => [],
+            'name' => 'Thumbnail',
+        ]);
+        $fileType->save();
     }
 
     public function down()
