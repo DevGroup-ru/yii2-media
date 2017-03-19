@@ -39,10 +39,11 @@ $this->registerJs($js);
             'data-csrf-token' => $csrfToken,
 
             // standard urls
-            'data-upload-target' => Url::to(['/media/filesystem/upload']),
+            'data-fs-upload-target' => Url::to(['/media/filesystem/upload']),
             'data-fs-trees' => Url::to(['/media/filesystem/trees']),
-            'data-fs-folders' => Url::to(['/media/filesystem/list-folders']),
-            'data-fs-files' => Url::to(['/media/filesystem/list-files']),
+            'data-fs-list-folders' => Url::to(['/media/filesystem/list-folders']),
+            'data-fs-list-files' => Url::to(['/media/filesystem/list-files']),
+            'data-fs-get-files' => Url::to(['/media/filesystem/get-files']),
         ]
     );?>
 
@@ -60,7 +61,7 @@ $this->registerJs($js);
             <div class="clearfix"></div>
         </div>
         <div class="media-attachment__selected-files">
-            OLD FILES WILL BE HERE LOL
+            <?= Yii::t('yii2-media', 'Drag&drop files here to upload') ?>
         </div>
         <div class="media-attachment__gallery-container">
 

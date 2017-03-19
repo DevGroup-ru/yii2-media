@@ -14,6 +14,7 @@ class TestController extends Controller
     {
         $model = new TestModel();
         $model->id = 123;
+        $model->files = '20,35';
 
         if (Yii::$app->request->isPost) {
             $model->load(Yii::$app->request->post);

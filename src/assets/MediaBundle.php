@@ -2,7 +2,7 @@
 
 namespace DevGroup\Media\assets;
 
-use yii\bootstrap\BootstrapPluginAsset;
+use yii\jui\JuiAsset;
 use yii\web\AssetBundle;
 
 class MediaBundle extends AssetBundle
@@ -10,7 +10,7 @@ class MediaBundle extends AssetBundle
     public $depends = [
         JCropAsset::class,
         IScrollAsset::class,
-        SortableAsset::class,
+        JuiAsset::class,
     ];
 
     public function init()

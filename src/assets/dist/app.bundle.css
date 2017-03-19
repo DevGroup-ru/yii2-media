@@ -11,6 +11,10 @@
   transition: outline-offset .15s ease-in-out;
   position: relative;
   padding: 10px; }
+  .media-attachment__selected-files:after {
+    content: " ";
+    display: table;
+    clear: both; }
 
 .media-attachment__selected-files_drag_over {
   outline-offset: 0;
@@ -33,28 +37,43 @@
   display: block;
   box-sizing: border-box;
   width: 150px;
-  height: 220px;
+  height: 180px;
   overflow: hidden;
-  position: relative; }
+  position: relative;
+  border: 1px solid #eee;
+  margin: 4px; }
+  .media-attachment__file:hover {
+    box-shadow: 0 0 5px -1px rgba(0, 0, 0, 0.5); }
 
 .media-attachment__file-thumb {
   width: 100%;
-  max-height: 150px; }
+  max-height: 150px;
+  overflow: hidden; }
+  .media-attachment__file-thumb img {
+    max-width: 100%; }
 
 .media-attachment__file-name {
   overflow: hidden;
   -ms-text-overflow: ellipsis;
-  text-overflow: ellipsis; }
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 2px; }
 
 .media-attachment__file-delete {
   position: absolute;
-  right: 0;
-  top: 0;
-  min-height: 30px;
-  min-width: 30px;
-  opacity: .5; }
+  right: 2px;
+  top: 2px;
+  font-size: 20px;
+  text-shadow: 0 0 2px #000;
+  opacity: .5;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.5); }
   .media-attachment__file-delete:hover {
-    opacity: 1; }
+    opacity: 1;
+    color: #f00; }
+
+.media-attachment__file_ghost, .media-attachment__file_chosen, .media-attachment__file_drag {
+  opacity: .5; }
 
 .media-attachment__gallery-container {
   position: absolute;

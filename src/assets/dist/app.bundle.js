@@ -97,7 +97,14 @@ var Attachment = function () {
       isErrorClass: 'media-attachment__selected-files_is_error'
     };
 
-    this.uploadTarget = this.$input.data('uploadTarget');
+    this.fs = {
+      uploadTarget: this.$input.data('fsUploadTarget'),
+      listFiles: this.$input.data('fsListFiles'),
+      listFolders: this.$input.data('fsListFolders'),
+      trees: this.$input.data('fsTrees'),
+      getFiles: this.$input.data('fsGetFiles')
+    };
+
     this.model = this.$input.data('model');
     this.modelId = this.$input.data('modelId');
     this.relationName = this.$input.data('relationName');
@@ -110,6 +117,7 @@ var Attachment = function () {
     this.$browseGallery = this.$object.find('.media-attachment__browse');
     this.$browseGallery.click(function () {
       _this.$galleryContainer.toggleClass('media-attachment__gallery-container_active');
+      return false;
     });
 
     this.$uploadButton = this.$object.find('.media-attachment__upload');
@@ -122,10 +130,28 @@ var Attachment = function () {
     });
 
     this.$selectedFiles = this.$object.find('.media-attachment__selected-files');
+    var that = this;
+    this.$selectedFiles.on('click', '.media-attachment__file-delete', function () {
+      that.removeFile($(this).closest('.media-attachment__file'));
+      return false;
+    });
 
     this.droppedFiles = false;
 
     this.bindUpload();
+
+    this.$selectedFiles.sortable({
+      handle: '.media-attachment__file-thumb',
+      items: '.media-attachment__file',
+      forcePlaceholderSize: true,
+      placeholder: 'media-attachment__file',
+      opacity: 0.5,
+      update: function update() {
+        return _this.$input.val(_this.$selectedFiles.sortable('toArray', { attribute: 'data-id' }).join(','));
+      }
+    });
+
+    this.refreshFiles();
   }
 
   _createClass(Attachment, [{
@@ -135,8 +161,10 @@ var Attachment = function () {
 
       this.$selectedFiles.on('drag dragstart dragend dragover dragenter dragleave drop', function (e) {
         // preventing the unwanted behaviours
-        e.preventDefault();
-        e.stopPropagation();
+        if (e.originalEvent.dataTransfer.files) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
       }).on('dragover dragenter', function () {
         _this2.$selectedFiles.addClass(_this2.settings.dragOverClass);
       }).on('dragleave dragend drop', function () {
@@ -167,7 +195,7 @@ var Attachment = function () {
       formData.append('UploadModel[relation_name]', this.relationName);
 
       $.ajax({
-        url: this.uploadTarget,
+        url: this.fs.uploadTarget,
         method: 'POST',
         data: formData,
         dataType: 'json',
@@ -182,11 +210,80 @@ var Attachment = function () {
           _this3.$selectedFiles.addClass(data.success === true ? _this3.settings.isSuccessClass : _this3.settings.isErrorClass);
           if (!data.success) {
             // $errorMsg.text(data.error);
+          } else {
+            var values = _this3.$input.val();
+            if (values !== '') {
+              values += ',';
+            }
+            values += data.ids;
+            values = values.split(',').filter(function onlyUnique(value, index, self) {
+              return self.indexOf(value) === index;
+            }).join(',');
+            _this3.$input.val(values);
+
+            _this3.refreshFiles();
           }
         }
       });
     }
+  }, {
+    key: 'refreshFiles',
+    value: function refreshFiles() {
+      var _this4 = this;
+
+      var ids = this.$input.val();
+      if (ids === '') {
+        return;
+      }
+
+      this.$selectedFiles.addClass(this.settings.isUploadingClass);
+      var data = { ids: ids };
+      data[this.csrfParam] = this.csrfToken;
+      $.ajax({
+        url: this.fs.getFiles,
+        data: data,
+        method: 'POST',
+        cache: false,
+        complete: function complete() {
+          _this4.$selectedFiles.removeClass(_this4.settings.isUploadingClass);
+        },
+        success: function success(data) {
+          _this4.$selectedFiles.empty();
+          var orderedIds = ids.split(',');
+          var allFiles = [];
+
+          orderedIds.forEach(function (id) {
+            if (data[id]) {
+              allFiles.push(Attachment.$file(data[id]));
+            }
+          });
+
+          _this4.$selectedFiles.append(allFiles);
+        }
+      });
+    }
+  }, {
+    key: 'removeFile',
+    value: function removeFile($file) {
+      var id = $file.data('id');
+      var vals = this.$input.val().split(',');
+      vals.splice(vals.indexOf('' + id), 1);
+      this.$input.val(vals.join(','));
+      $file.remove();
+    }
   }], [{
+    key: '$file',
+    value: function $file(decl) {
+      var thumb = '';
+      if (decl.imageData) {
+        if (decl.imageData.thumb) {
+          thumb = '<img src="' + decl.imageData.thumb.fileData.public_url + '">';
+        }
+      }
+
+      return $('\n<div class="media-attachment__file" data-id="' + decl.id + '">\n    <div class="media-attachment__file-thumb">\n        ' + thumb + '\n    </div>\n    <div class="media-attachment__file-name">\n        ' + decl.name + '        \n    </div>\n    <a href="#" class="media-attachment__file-delete">\n        <i class="fa fa-trash-o fa-fw"></i>    \n    </a>\n</div>\n');
+    }
+  }, {
     key: 'bindToInput',
     value: function bindToInput(input) {
       var $input = input instanceof $ ? input : $('#' + input);

@@ -7,9 +7,7 @@ use DevGroup\Media\models\File;
 use DevGroup\Media\models\Folder;
 use DevGroup\Media\models\UploadModel;
 use Yii;
-use yii\caching\TagDependency;
 use yii\web\Controller;
-use yii\web\NotFoundHttpException;
 use yii\web\Response;
 use yii\web\UploadedFile;
 
@@ -53,9 +51,12 @@ class FilesystemController extends Controller
         return $nodes;
     }
 
-    public function actionGetFiles($ids)
+    public function actionGetFiles()
     {
-        $ids = explode(',', $ids);
+        $ids = explode(',', Yii::$app->request->post('ids', ''));
+        if ($ids === '') {
+            return [];
+        }
         return AttachmentHelper::fileDefinitions($ids);
     }
 
@@ -93,6 +94,7 @@ class FilesystemController extends Controller
 
         return [
             'success' => $result,
+            'ids' => $model->filesIds,
             'error' => implode('<br>', $model->errors),
         ];
     }

@@ -10,7 +10,14 @@ class Attachment {
       isErrorClass: 'media-attachment__selected-files_is_error'
     };
 
-    this.uploadTarget = this.$input.data('uploadTarget');
+    this.fs = {
+      uploadTarget: this.$input.data('fsUploadTarget'),
+      listFiles: this.$input.data('fsListFiles'),
+      listFolders: this.$input.data('fsListFolders'),
+      trees: this.$input.data('fsTrees'),
+      getFiles: this.$input.data('fsGetFiles')
+    };
+
     this.model = this.$input.data('model');
     this.modelId = this.$input.data('modelId');
     this.relationName = this.$input.data('relationName');
@@ -23,6 +30,7 @@ class Attachment {
     this.$browseGallery = this.$object.find('.media-attachment__browse');
     this.$browseGallery.click(() => {
       this.$galleryContainer.toggleClass('media-attachment__gallery-container_active');
+      return false;
     });
 
     this.$uploadButton = this.$object.find('.media-attachment__upload');
@@ -37,18 +45,43 @@ class Attachment {
 
 
     this.$selectedFiles = this.$object.find('.media-attachment__selected-files');
+    const that = this;
+    this.$selectedFiles.on('click', '.media-attachment__file-delete', function() {
+      that.removeFile($(this).closest('.media-attachment__file'));
+      return false;
+    });
 
     this.droppedFiles = false;
 
     this.bindUpload();
+
+    this.$selectedFiles.sortable({
+      handle: '.media-attachment__file-thumb',
+      items: '.media-attachment__file',
+      forcePlaceholderSize: true,
+      placeholder: 'media-attachment__file',
+      opacity: 0.5,
+      update: () =>
+        this.$input.val(
+          this.$selectedFiles
+            .sortable(
+              'toArray',
+              {attribute: 'data-id'}
+            ).join(',')
+        )
+    });
+
+    this.refreshFiles();
   }
 
   bindUpload() {
     this.$selectedFiles
       .on('drag dragstart dragend dragover dragenter dragleave drop', function (e) {
         // preventing the unwanted behaviours
-        e.preventDefault();
-        e.stopPropagation();
+        if (e.originalEvent.dataTransfer.files) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
       })
       .on('dragover dragenter', () => {
         this.$selectedFiles.addClass(this.settings.dragOverClass);
@@ -79,7 +112,7 @@ class Attachment {
     formData.append('UploadModel[relation_name]', this.relationName);
 
     $.ajax({
-      url: this.uploadTarget,
+      url: this.fs.uploadTarget,
       method: 'POST',
       data: formData,
       dataType: 'json',
@@ -95,9 +128,85 @@ class Attachment {
           .addClass(data.success === true ? this.settings.isSuccessClass : this.settings.isErrorClass);
         if (!data.success) {
           // $errorMsg.text(data.error);
+        } else {
+          let values = this.$input.val();
+          if (values !== '') {
+            values += ',';
+          }
+          values += data.ids;
+          values = values.split(',').filter(function onlyUnique(value, index, self) {
+            return self.indexOf(value) === index;
+          }).join(',');
+          this.$input.val(values);
+
+          this.refreshFiles();
         }
       }
     });
+  }
+
+  refreshFiles() {
+    const ids = this.$input.val();
+    if (ids === '') {
+      return;
+    }
+
+    this.$selectedFiles.addClass(this.settings.isUploadingClass);
+    const data = {ids};
+    data[this.csrfParam] = this.csrfToken;
+    $.ajax({
+      url: this.fs.getFiles,
+      data,
+      method: 'POST',
+      cache: false,
+      complete: () => {
+        this.$selectedFiles.removeClass(this.settings.isUploadingClass);
+      },
+      success: (data) => {
+        this.$selectedFiles.empty();
+        const orderedIds = ids.split(',');
+        const allFiles = [];
+
+        orderedIds.forEach((id) => {
+          if (data[id]) {
+            allFiles.push(Attachment.$file(data[id]));
+          }
+        });
+
+        this.$selectedFiles.append(allFiles);
+      }
+    });
+  }
+
+  static $file(decl) {
+    let thumb = '';
+    if (decl.imageData) {
+      if (decl.imageData.thumb) {
+        thumb = `<img src="${decl.imageData.thumb.fileData.public_url}">`;
+      }
+    }
+
+    return $(`
+<div class="media-attachment__file" data-id="${decl.id}">
+    <div class="media-attachment__file-thumb">
+        ${thumb}
+    </div>
+    <div class="media-attachment__file-name">
+        ${decl.name}        
+    </div>
+    <a href="#" class="media-attachment__file-delete">
+        <i class="fa fa-trash-o fa-fw"></i>    
+    </a>
+</div>
+`);
+  }
+
+  removeFile($file) {
+    const id = $file.data('id');
+    const vals = this.$input.val().split(',');
+    vals.splice(vals.indexOf(`${id}`), 1);
+    this.$input.val(vals.join(','));
+    $file.remove();
   }
 
   static bindToInput(input) {

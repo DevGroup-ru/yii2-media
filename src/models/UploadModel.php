@@ -34,7 +34,6 @@ class UploadModel extends Model
 
         if ($this->validate()) {
             $fileSystem = MediaModule::module()->defaultFileSystem();
-            $urlProvider = MediaModule::module()->defaultUrlProvider();
 
             $pathPrefix = $this->model . '/'
                 . $this->model_id;
