@@ -15,7 +15,7 @@ use yii\web\UploadedFile;
 
 class Image extends AbstractFileType
 {
-    public $directoryLevel = 3;
+    public $directoryLevel = 1;
     public $thumbnailWidth = 300;
     public $thumbnailHeight = 300;
     public $thumbnailInset = false;
