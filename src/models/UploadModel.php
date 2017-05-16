@@ -3,6 +3,7 @@
 namespace DevGroup\Media\models;
 
 use creocoder\flysystem\Filesystem;
+use DevGroup\Media\helpers\FsHelper;
 use DevGroup\Media\MediaModule;
 use DevGroup\Media\UrlProvider\AbstractUrlProvider;
 use Yii;
@@ -38,6 +39,8 @@ class UploadModel extends Model
             $pathPrefix = $this->model . '/'
                 . $this->model_id;
 
+            $pathPrefix = $this->model . '/' . FsHelper::makeFolders($pathPrefix, 2) . $this->model_id;
+
             foreach ($this->files as $file) {
                 $fileType = static::beforeFileUpload($file);
 
@@ -53,6 +56,7 @@ class UploadModel extends Model
                     $folder = Folder::ensureFolder($pathPrefix, MediaModule::module()->defaultTree);
                     $fileModel = File::ensureFile($folder, $file->baseName . '.' . $file->extension);
                     $fileModel->size = $file->size;
+                    $fileModel->file_type_id = $fileType->id;
 
                     $fileType->handler->modelCreated($fileModel, $file->tempName);
 
@@ -66,9 +70,9 @@ class UploadModel extends Model
                 }
             }
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     public static function beforeFileUpload(UploadedFile $file)

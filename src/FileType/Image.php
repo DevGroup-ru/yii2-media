@@ -3,6 +3,7 @@
 namespace DevGroup\Media\FileType;
 
 use DevGroup\Media\helpers\AttachmentHelper;
+use DevGroup\Media\helpers\FsHelper;
 use DevGroup\Media\MediaModule;
 use DevGroup\Media\models\File;
 use DevGroup\Media\models\Folder;
@@ -64,13 +65,7 @@ class Image extends AbstractFileType
 
         $pathPrefix = 'thumbnails';
 
-        $key = md5($thumbnailFilename);
-
-        for ($i = 0; $i < $this->directoryLevel; ++$i) {
-            if (($prefix = substr($key, $i + $i, 6)) !== false) {
-                $pathPrefix .= '/' . $prefix;
-            }
-        }
+        $pathPrefix .= '/' . FsHelper::makeFolders($thumbnailFilename, $this->directoryLevel);
 
         $fakeUploadedFile = new UploadedFile([
             'tempName' => $tmpFilename,
@@ -82,11 +77,16 @@ class Image extends AbstractFileType
             $pathPrefix,
             MediaModule::module()->defaultFileSystem()
         );
+        $filesize = filesize($tmpFilename);
+
         unlink($tmpFilename);
 
         $folder = Folder::ensureFolder($pathPrefix, MediaModule::module()->defaultTree);
         $file = File::ensureFile($folder, $thumbnailFilename);
         $mediaImage->thumb_file_id = $file->id;
+        $file->file_type_id = 3;
+        $file->size = $filesize;
+
         $mediaImage->save();
 
         AttachmentHelper::fillPublicUrl($file);
