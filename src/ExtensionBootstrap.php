@@ -20,7 +20,7 @@ class ExtensionBootstrap implements BootstrapInterface
     {
         if ($app instanceof \yii\console\Application) {
             if (isset($app->controllerMap['migrate'])) {
-                $app->controllerMap['migrate']['migrationLookup'][] = '@vendor/devgroup/yii2-media/src/migrations';
+//                $app->controllerMap['migrate']['migrationLookup'][] = '@vendor/devgroup/yii2-media/src/migrations';
             }
 
         }
